@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('https://img.freepik.com/free-vector/background-monsoon-season_52683-115103.jpg?t=st=1741507482~exp=1741511082~hmac=3e6bcdcb2e8f2e4abe8e7cd30585c8d3f5cb1bcbb78f0ddda7e05e8c9f00c685&w=1380') no-repeat center center/cover;
+
+            color: white;
+        }
+        .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 100vh;
+            padding: 50px;
+        }
+        .left-section {
+            text-align: left;
+            margin-left: 50px;
+        }
+        .right-section {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 30px;
+            border-radius: 10px;
+            text-align: left;
+            width: 300px;
+            margin-right: 50px;
+        }
+        .search-container {
+            position: absolute;
+            top: 20px;
+            right: 50px;
+        }
+        input, button {
+            padding: 12px;
+            margin: 5px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: none;
+        }
+        input {
+            width: 250px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .temperature {
+            font-size: 80px;
+            font-weight: bold;
+        }
+        .weather-icon {
+            width: 80px;
+            height: 80px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="search-container">
+        <input type="text" id="location" placeholder="Enter location" required>
+        <button onclick="getWeather()">🔍</button>
+    </div>
+    <div class="container">
+        <div class="left-section">
+            <h2>🌤️ Weather App</h2>
+            <div class="temperature" id="temp">--°C</div>
+            <h2 id="city">Location</h2>
+            <p id="time">⏰ Time: --:--</p>
+            <p id="date">📅 Date: --/--/----</p>
+        </div>
+        <div class="right-section">
+            <h3>Weather Details</h3>
+            <p><strong>Condition:</strong> <span id="condition">--</span></p>
+            <p><strong>Humidity:</strong> <span id="humidity">--%</span></p>
+            <p><strong>Wind Speed:</strong> <span id="wind">-- km/h</span></p>
+            <p><strong>Suggestion:</strong> <span id="suggestion">--</span></p>
+        </div>
+    </div>
+
+    <script>
+        function updateTimeAndDate() {
+            const now = new Date();
+            document.getElementById('time').innerText = `⏰ Time: ${now.toLocaleTimeString()}`;
+            document.getElementById('date').innerText = `📅 Date: ${now.toLocaleDateString()}`;
+        }
+        setInterval(updateTimeAndDate, 1000);
+        updateTimeAndDate();
+        
+        function getWeather() {
+            const location = document.getElementById('location').value;
+            if (!location) {
+                alert("Please enter a location");
+                return;
+            }
+            
+            const apiKey = '1eaefaac92184199a1372206250903';
+            const url = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}&aqi=yes`;
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('temp').innerText = `${data.current.temp_c}°C`;
+                    document.getElementById('city').innerText = `${data.location.name}, ${data.location.country}`;
+                    document.getElementById('condition').innerText = data.current.condition.text;
+                    document.getElementById('humidity').innerText = `${data.current.humidity}%`;
+                    document.getElementById('wind').innerText = `${data.current.wind_kph} km/h`;
+                    document.getElementById('suggestion').innerText = getWeatherSuggestion(data.current.condition.text, data.current.temp_c);
+                })
+                .catch(error => {
+                    document.getElementById('condition').innerText = "Error fetching weather data.";
+                });
+        }
+
+        function getWeatherSuggestion(condition, temp) {
+            if (condition.toLowerCase().includes("rain")) {
+                return "🌧️ It's raining! Don't forget an umbrella.";
+            } else if (temp > 30) {
+                return "🥵 It's quite hot! Stay hydrated.";
+            } else if (temp < 10) {
+                return "🥶 It's cold! Wear warm clothes.";
+            } else {
+                return "😊 Weather looks good! Have a great day.";
+            }
+        }
+    </script>
+</body>
+</html>
